@@ -17,7 +17,7 @@ Predicting Rushing Yards and Passing Touchdowns using elastic net regression.
 Aggregating and analyzing game-level outcomes based on season-level predictions.
 This project highlights the potential for data-driven insights in sports, bridging historical data with predictive analytics.
 
-Dataset Sources
+## Dataset Sources
 The data used in this project was sourced from publicly available NFL statistics:
 
 Stathead - NFL Team Season Finder
