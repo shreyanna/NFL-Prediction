@@ -1,32 +1,39 @@
-# NFL-Prediction
+## Project Description
 
-NFL Outcome Prediction & Analysis
-This extra credit project for STOR 455 (Methods of Data Analysis) focuses on predicting key NFL game metrics, specifically Total Rushing Yards and Total Passing Touchdowns, using season-level data from NFL teams spanning 1920 to 2024. Employing elastic net regression, the model was trained on a dataset of team statistics, such as wins, games played, rushing attempts, passing attempts, and yards, while accounting for multicollinearity and scaling issues inherent to sports data.
+This extra credit project for **STOR 455 (Methods of Data Analysis)** focuses on predicting NFL game outcomes using historical team statistics. The analysis was conducted by applying Elastic Net regression to predict two key metrics: total passing touchdowns (PassTD) and total rushing yards (RushYds) for NFL teams. The results were combined to estimate game-level performance based on team-level seasonal data.
 
-Key goals included:
+### Procedure
 
-Predicting per-game rushing yards and passing touchdowns for NFL teams.
-Aggregating predictions to forecast combined totals for specific matchups and events, such as Thanksgiving Day games.
-Delivering accurate and explainable results to inform analyses of team performance.
-Through systematic preprocessing, feature selection, and model evaluation, our approach achieved strong results. The model's accuracy was validated by achieving a top 5 rank in a competitive evaluation of NFL prediction models. This project demonstrates the value of elastic net regression in balancing model complexity with interpretability, making it suitable for sports analytics and predictive modeling in large datasets.
+1. **Data Collection**:  
+   Historical NFL team data was sourced from [Stathead - NFL Team Season Finder](https://stathead.com/football/team-season-finder.cgi), covering team performance metrics from 1920 to 2024. Each dataset represents a team's season-level performance.
 
-The repository includes code for:
+2. **Data Cleaning & Preprocessing**:  
+   - Irrelevant columns were removed, and variables were standardized to address scaling differences.
+   - Highly correlated variables were excluded to handle multicollinearity, ensuring model robustness.
+   - Seasonal data was adjusted to generate per-game metrics for predictions.
 
-Cleaning and preparing NFL datasets.
-Predicting Rushing Yards and Passing Touchdowns using elastic net regression.
-Aggregating and analyzing game-level outcomes based on season-level predictions.
-This project highlights the potential for data-driven insights in sports, bridging historical data with predictive analytics.
+3. **Model Development**:  
+   - **Elastic Net Regression**: A combination of Lasso and Ridge regression was used to handle multicollinearity and select the most relevant features. Separate models were trained for predicting PassTD and RushYds.
+   - Log-transformation was applied where necessary to improve model fit.
+
+4. **Prediction**:  
+   - Models were evaluated using R² and RMSE metrics to validate performance.
+   - Predictions were scaled back to per-game and seasonal levels, enabling comparisons across teams.
+
+5. **Outcome Calculation**:  
+   - For specific NFL games, predicted RushYds and PassTD values were multiplied to estimate the overall game score metric:  
+     **(Total Rushing Yards) × (Total Passing Touchdowns)**  
+   - Results were aggregated for teams playing on Thanksgiving Day 2024.
+
+### Results
+
+Our team’s models ranked in the top 5 for prediction accuracy, demonstrating the effectiveness of Elastic Net regression in analyzing NFL data. The project highlights how team-level seasonal data can effectively approximate game-level outcomes, even without direct interaction data between teams.
 
 ## Dataset Sources
 
-The data used in this project was sourced from publicly available NFL statistics:
-
 - **[Stathead - NFL Team Season Finder](https://stathead.com/football/team-season-finder.cgi)**  
-  Historical NFL team statistics from 1920 to 2024, including passing touchdowns, rushing yards, and other team-level metrics.
+  Historical NFL statistics from 1920 to 2024, including passing touchdowns, rushing yards, and other metrics.
 
 ## Acknowledgments
 
-We acknowledge the contribution of the original dataset providers for making the data available for analysis. Elastic Net regression models and statistical insights were implemented using the following libraries:
-
-- **R**: caret, glmnet, and related packages.
-- **Python (if applicable)**: scikit-learn, pandas, etc.
+We thank Stathead for providing the dataset and acknowledge the use of the R programming language, with libraries such as caret and glmnet, in model development.
