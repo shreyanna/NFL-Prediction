@@ -1,7 +1,7 @@
 # NFL-Prediction
 
 NFL Outcome Prediction & Analysis
-This project focuses on predicting key NFL game metrics, specifically Total Rushing Yards and Total Passing Touchdowns, using season-level data from NFL teams spanning 1920 to 2024. Employing elastic net regression, the model was trained on a dataset of team statistics, such as wins, games played, rushing attempts, passing attempts, and yards, while accounting for multicollinearity and scaling issues inherent to sports data.
+This extra credit project for STOR 455 (Methods of Data Analysis) focuses on predicting key NFL game metrics, specifically Total Rushing Yards and Total Passing Touchdowns, using season-level data from NFL teams spanning 1920 to 2024. Employing elastic net regression, the model was trained on a dataset of team statistics, such as wins, games played, rushing attempts, passing attempts, and yards, while accounting for multicollinearity and scaling issues inherent to sports data.
 
 Key goals included:
 
