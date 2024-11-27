@@ -1,5 +1,5 @@
 ---
-title: "Extra Credit STOR 455"
+title: "NFL Prediction STOR 455"
 output:
   pdf_document: default
   html_document:
