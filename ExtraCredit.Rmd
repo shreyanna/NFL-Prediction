@@ -1,0 +1,226 @@
+---
+title: "Extra Credit STOR 455"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(caret)
+library(randomForest)
+library(glmnet)
+
+```
+
+```{r}
+
+#Predicting RushYds: 
+
+predict_rush_yds <- function(filepath) {
+  team_data <- read.csv(filepath)
+  team_data <- na.omit(team_data)
+  numeric_data <- team_data[sapply(team_data, is.numeric)]
+  
+  response_var <- "RushYds"
+  numeric_data <- numeric_data[, !(names(numeric_data) == response_var)]
+  
+  cor_matrix <- cor(numeric_data)
+  
+  high_cor <- findCorrelation(cor_matrix, cutoff = 0.85, names = TRUE)
+  numeric_data <- numeric_data[, !names(numeric_data) %in% high_cor]
+  
+  numeric_data[[response_var]] <- team_data[[response_var]]
+  
+  cor_rush_yds <- cor(numeric_data, use = "complete.obs")["RushYds", ]
+  relevant_predictors <- names(cor_rush_yds[abs(cor_rush_yds) > 0.3])
+  
+  X <- numeric_data[, relevant_predictors]
+  y <- numeric_data$RushYds
+  
+  X_scaled <- scale(X)
+  
+  set.seed(123)
+  train_index <- caret::createDataPartition(y, p = 0.8, list = FALSE)
+  X_train <- X_scaled[train_index, ]
+  y_train <- y[train_index]
+  X_test <- X_scaled[-train_index, ]
+  y_test <- y[-train_index]
+  
+  set.seed(123)
+  cv_elastic_net <- cv.glmnet(
+    x = as.matrix(X_train),
+    y = y_train,
+    alpha = 0.5,  # Elastic Net: 50% Lasso, 50% Ridge
+    nfolds = 10,
+    type.measure = "mse"
+  )
+  
+  best_lambda_en <- cv_elastic_net$lambda.min
+  
+  elastic_net_model <- glmnet(
+    x = as.matrix(X_train),
+    y = y_train,
+    alpha = 0.5,
+    lambda = best_lambda_en
+  )
+  
+  test_predictions_en <- predict(elastic_net_model, s = best_lambda_en, newx = as.matrix(X_test))
+  
+  r_squared_en <- cor(y_test, test_predictions_en)^2
+  rmse_en <- sqrt(mean((y_test - test_predictions_en)^2))
+  
+  recent_season_data <- head(X, 1)
+  recent_season_data_scaled <- scale(
+    recent_season_data,
+    center = attr(X_scaled, "scaled:center"),
+    scale = attr(X_scaled, "scaled:scale")
+  )
+  predicted_rush_yds <- predict(elastic_net_model, s = best_lambda_en, newx = as.matrix(recent_season_data_scaled))
+  
+  games_played <- team_data$G[1]  
+  predicted_game_rush_yds <- predicted_rush_yds / games_played
+  
+  return(list(
+    Team = basename(filepath),  
+    R_Squared = round(r_squared_en, 4),
+    RMSE = round(rmse_en, 4),
+    Predicted_Season_RushYds = round(as.numeric(predicted_rush_yds), 2),
+    Games_Played = games_played,
+    Predicted_Game_RushYds = round(as.numeric(predicted_game_rush_yds), 2)
+  ))
+}
+
+filepaths <- c(
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_CHI.csv",
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_DET.csv",
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_NYG.csv",
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_DAL.csv",
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_MIA.csv",
+  "/Users/shreya/Desktop/School/Fall-24/STOR 455/Extra Credit/NFL_GNB.csv"
+)
+
+results <- lapply(filepaths, predict_rush_yds)
+rushing_results_df <- do.call(rbind, lapply(results, as.data.frame))
+
+print(rushing_results_df)
+
+
+# Predicting PassTD:
+
+predict_pass_td <- function(filepath) {
+  team_data <- read.csv(filepath)
+  team_data <- na.omit(team_data)
+  numeric_data <- team_data[sapply(team_data, is.numeric)]
+  
+  response_var <- "PassTD"
+  numeric_data <- numeric_data[, !(names(numeric_data) == response_var)]
+  
+  cor_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
+  
+  high_cor <- findCorrelation(cor_matrix, cutoff = 0.85, names = TRUE)
+  numeric_data <- numeric_data[, !names(numeric_data) %in% high_cor]
+  
+  numeric_data[[response_var]] <- team_data[[response_var]]
+  
+  cor_pass_td <- cor(numeric_data, use = "complete.obs")["PassTD", ]
+  relevant_predictors <- names(cor_pass_td[abs(cor_pass_td) > 0.3])
+  
+  X <- numeric_data[, relevant_predictors]
+  y <- numeric_data$PassTD
+  
+  X_scaled <- scale(X)
+  
+  set.seed(123)
+  train_index <- caret::createDataPartition(y, p = 0.8, list = FALSE)
+  X_train <- X_scaled[train_index, ]
+  y_train <- y[train_index]
+  X_test <- X_scaled[-train_index, ]
+  y_test <- y[-train_index]
+  
+  set.seed(123)
+  cv_elastic_net <- cv.glmnet(
+    x = as.matrix(X_train),
+    y = y_train,
+    alpha = 0.5,  
+    nfolds = 10,
+    type.measure = "mse"
+  )
+  
+  best_lambda_en <- cv_elastic_net$lambda.min
+  
+  elastic_net_model <- glmnet(
+    x = as.matrix(X_train),
+    y = y_train,
+    alpha = 0.5,
+    lambda = best_lambda_en
+  )
+  
+  test_predictions_en <- predict(elastic_net_model, s = best_lambda_en, newx = as.matrix(X_test))
+  
+  r_squared_en <- cor(y_test, test_predictions_en)^2
+  rmse_en <- sqrt(mean((y_test - test_predictions_en)^2))
+  
+  recent_season_data <- head(X, 1)
+  recent_season_data_scaled <- scale(
+    recent_season_data,
+    center = attr(X_scaled, "scaled:center"),
+    scale = attr(X_scaled, "scaled:scale")
+  )
+  predicted_pass_td <- predict(elastic_net_model, s = best_lambda_en, newx = as.matrix(recent_season_data_scaled))
+  
+  games_played <- team_data$G[1] 
+  predicted_game_pass_td <- predicted_pass_td / games_played
+  
+  return(list(
+    Team = basename(filepath), 
+    R_Squared = round(r_squared_en, 4),
+    RMSE = round(rmse_en, 4),
+    Predicted_Season_PassTD = round(as.numeric(predicted_pass_td), 2),
+    Games_Played = games_played,
+    Predicted_Game_PassTD = round(as.numeric(predicted_game_pass_td), 2)
+  ))
+}
+
+results <- lapply(filepaths, predict_pass_td)
+passing_results_df <- do.call(rbind, lapply(results, as.data.frame))
+
+print(passing_results_df)
+
+
+# Calculating final scores:
+
+calculate_combined_score <- function(rushing_data, passing_data) {
+  if (!all(rushing_data$Team == passing_data$Team)) {
+    stop("Teams in rushing and passing datasets do not match!")
+  }
+  
+  combined_data <- data.frame(
+    Team = rushing_data$Team,
+    Total_Rushing_Yards = rushing_data$Predicted_Season_RushYds,
+    Total_Passing_TDs = passing_data$Predicted_Season_PassTD,
+    Games_Played = rushing_data$Games_Played
+  )
+  
+  combined_data$Rushing_Yards_per_Game <- combined_data$Total_Rushing_Yards / combined_data$Games_Played
+  combined_data$Passing_TDs_per_Game <- combined_data$Total_Passing_TDs / combined_data$Games_Played
+  
+  combined_data$Final_Score <- combined_data$Total_Rushing_Yards * combined_data$Total_Passing_TDs
+  
+  combined_data <- na.omit(combined_data)  
+  
+  combined_data
+}
+
+final_combined_results <- calculate_combined_score(rushing_results_df, passing_results_df)
+
+print(final_combined_results)
+
+final_combined_score <- sum(final_combined_results$Final_Score, na.rm = TRUE)
+
+print(paste("Final Combined Score (Total Rushing Yards * Total Passing TDs):", round(final_combined_score, 2)))
+
+```
+
