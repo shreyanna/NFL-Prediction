@@ -16,3 +16,15 @@ Cleaning and preparing NFL datasets.
 Predicting Rushing Yards and Passing Touchdowns using elastic net regression.
 Aggregating and analyzing game-level outcomes based on season-level predictions.
 This project highlights the potential for data-driven insights in sports, bridging historical data with predictive analytics.
+
+Dataset Sources
+The data used in this project was sourced from publicly available NFL statistics:
+
+Stathead - NFL Team Season Finder
+Website: Stathead
+Description: Historical NFL team statistics from 1920 to 2024, including passing touchdowns, rushing yards, and other team-level metrics.
+Acknowledgments
+We acknowledge the contribution of the original dataset providers for making the data available for analysis. Elastic Net regression models and statistical insights were implemented using the following libraries:
+
+R: caret, glmnet, and related packages.
+Python (if applicable): scikit-learn, pandas, etc.
